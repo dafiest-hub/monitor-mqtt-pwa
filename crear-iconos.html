@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Iconos PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        canvas {
+            border: 2px solid #ddd;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Iconos PWA</h1>
+        <p>Este archivo genera los iconos necesarios para tu PWA</p>
+
+        <canvas id="canvas192" width="192" height="192"></canvas>
+        <br>
+        <button onclick="downloadIcon(192)">Descargar icono 192x192</button>
+
+        <canvas id="canvas512" width="512" height="512"></canvas>
+        <br>
+        <button onclick="downloadIcon(512)">Descargar icono 512x512</button>
+
+        <p style="margin-top: 20px; color: #666; font-size: 14px;">
+            Guarda ambos iconos en la misma carpeta que tu proyecto
+        </p>
+    </div>
+
+    <script>
+        // Dibujar icono de 192x192
+        const canvas192 = document.getElementById('canvas192');
+        const ctx192 = canvas192.getContext('2d');
+        drawIcon(ctx192, 192);
+
+        // Dibujar icono de 512x512
+        const canvas512 = document.getElementById('canvas512');
+        const ctx512 = canvas512.getContext('2d');
+        drawIcon(ctx512, 512);
+
+        function drawIcon(ctx, size) {
+            // Fondo degradado
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#2196F3');
+            gradient.addColorStop(1, '#1976D2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Símbolo MQTT (ondas)
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = size / 20;
+            ctx.lineCap = 'round';
+
+            // Punto central
+            const centerX = size / 2;
+            const centerY = size / 2;
+
+            // Dibujar punto central
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size / 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Dibujar ondas concéntricas
+            for (let i = 1; i <= 3; i++) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, (size / 6) * i, 0, Math.PI * 2);
+                ctx.globalAlpha = 1 - (i * 0.2);
+                ctx.stroke();
+            }
+
+            // Dibujar flechas (indicando transmisión)
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = 'white';
+
+            // Flecha arriba
+            drawArrow(ctx, centerX, size * 0.2, 0, size);
+            // Flecha derecha
+            drawArrow(ctx, size * 0.8, centerY, Math.PI / 2, size);
+            // Flecha abajo
+            drawArrow(ctx, centerX, size * 0.8, Math.PI, size);
+            // Flecha izquierda
+            drawArrow(ctx, size * 0.2, centerY, -Math.PI / 2, size);
+        }
+
+        function drawArrow(ctx, x, y, angle, size) {
+            const arrowSize = size / 12;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.moveTo(0, -arrowSize);
+            ctx.lineTo(-arrowSize / 2, 0);
+            ctx.lineTo(arrowSize / 2, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
