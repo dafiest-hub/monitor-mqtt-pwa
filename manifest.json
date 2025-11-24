@@ -1,7 +1,7 @@
 {
-  "name": "Monitor MQTT",
-  "short_name": "MQTT",
-  "description": "Monitor de valores MQTT en tiempo real",
+  "name": "Monitor Eléctrico CFE",
+  "short_name": "CFE Monitor",
+  "description": "Monitor de fuente eléctrica - CFE o Generador",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -1,9 +1,14 @@
 // ===== CONFIGURACIÓN - EDITA AQUÍ =====
 const MQTT_CONFIG = {
     broker: 'broker.hivemq.com',     // Cambia aquí el broker
-    port: 8884,                       // Puerto WSS (8081 Mosquitto, 8084 EMQX, 8884 HiveMQ)
-    topic: 'felipe/voltaje/sensor',   // Cambia aquí tu tópico único
+    port: 8884,                       // Puerto WSS
+    topic: 'cfe/monitor/fuente',     // Tópico MQTT (valores: CFE o GENERADOR)
     path: '/mqtt'                     // Ruta del WebSocket
+};
+
+const DISPOSITIVO = {
+    id: 'DIS-2024-001',              // ID del dispositivo
+    ubicacion: 'Edificio Principal'  // Ubicación del dispositivo
 };
 // ======================================
 
@@ -18,18 +23,19 @@ const statusDot = document.querySelector('.status-dot');
 const statusText = document.getElementById('statusText');
 const valueDisplay = document.getElementById('valueDisplay');
 const timestamp = document.getElementById('timestamp');
-const messageInput = document.getElementById('message');
-const publishBtn = document.getElementById('publishBtn');
 const installPrompt = document.getElementById('installPrompt');
 const installBtn = document.getElementById('installBtn');
-const configInfo = document.getElementById('configInfo');
+const deviceInfo = document.getElementById('deviceInfo');
 
-// Mostrar configuración en la interfaz
-if (configInfo) {
-    configInfo.innerHTML = `
-        <strong>Broker:</strong> ${MQTT_CONFIG.broker}<br>
-        <strong>Puerto:</strong> ${MQTT_CONFIG.port}<br>
-        <strong>Tópico:</strong> ${MQTT_CONFIG.topic}
+// Mostrar información del dispositivo
+if (deviceInfo) {
+    deviceInfo.innerHTML = `
+        <div style="margin-bottom: 10px;">
+            <strong>ID Dispositivo:</strong> ${DISPOSITIVO.id}
+        </div>
+        <div>
+            <strong>Ubicación:</strong> ${DISPOSITIVO.ubicacion}
+        </div>
     `;
 }
 
@@ -42,18 +48,32 @@ function updateStatus(connected, message) {
         statusDot.className = 'status-dot connected';
         connectBtn.textContent = 'Desconectar';
         connectBtn.classList.add('connected');
-        publishBtn.disabled = false;
     } else {
         statusDot.className = 'status-dot disconnected';
         connectBtn.textContent = 'Conectar';
         connectBtn.classList.remove('connected');
-        publishBtn.disabled = true;
     }
 }
 
-// Mostrar valor recibido
+// Mostrar valor recibido y cambiar color de fondo
 function displayValue(value) {
-    valueDisplay.innerHTML = `<div class="value">${value}</div>`;
+    const valorLimpio = value.trim().toUpperCase();
+
+    // Determinar el color de fondo según la fuente
+    let backgroundColor;
+    if (valorLimpio === 'CFE') {
+        backgroundColor = 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)'; // Azul
+    } else if (valorLimpio === 'GENERADOR') {
+        backgroundColor = 'linear-gradient(135deg, #c31432 0%, #e85d75 100%)'; // Rojo
+    } else {
+        backgroundColor = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; // Morado (default)
+    }
+
+    // Cambiar color de fondo del body
+    document.body.style.background = backgroundColor;
+
+    // Mostrar el valor
+    valueDisplay.innerHTML = `<div class="value">${valorLimpio}</div>`;
 
     const now = new Date();
     timestamp.textContent = `Última actualización: ${now.toLocaleString('es-ES')}`;
@@ -137,51 +157,12 @@ function disconnectMQTT() {
     updateStatus(false, 'Desconectado');
 }
 
-// Publicar mensaje
-function publishMessage() {
-    if (!client || !isConnected) {
-        alert('No estás conectado al broker');
-        return;
-    }
-
-    const message = messageInput.value.trim();
-
-    if (!message) {
-        alert('Escribe un mensaje para publicar');
-        return;
-    }
-
-    client.publish(MQTT_CONFIG.topic, message, (err) => {
-        if (err) {
-            console.error('Error al publicar:', err);
-            alert('Error al publicar mensaje');
-        } else {
-            console.log('Mensaje publicado:', message);
-            messageInput.value = '';
-
-            // Mostrar feedback
-            publishBtn.textContent = 'Publicado!';
-            setTimeout(() => {
-                publishBtn.textContent = 'Publicar';
-            }, 1500);
-        }
-    });
-}
-
 // Event Listeners
 connectBtn.addEventListener('click', () => {
     if (isConnected) {
         disconnectMQTT();
     } else {
         connectMQTT();
-    }
-});
-
-publishBtn.addEventListener('click', publishMessage);
-
-messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        publishMessage();
     }
 });
 

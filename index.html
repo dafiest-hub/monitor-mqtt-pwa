@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2196F3">
-    <meta name="description" content="Monitor MQTT en tiempo real">
-    <title>Monitor MQTT</title>
+    <meta name="description" content="Monitor de Fuente Eléctrica - CFE o Generador">
+    <title>Monitor Eléctrico</title>
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
@@ -17,7 +17,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Monitor MQTT</h1>
+            <h1>Monitor de Fuente Eléctrica</h1>
             <div class="status" id="status">
                 <span class="status-dot disconnected"></span>
                 <span id="statusText">Desconectado</span>
@@ -26,28 +26,19 @@
 
         <main>
             <div class="config-section">
-                <h2>Configuración</h2>
-                <div id="configInfo" style="padding: 15px; background: white; border-radius: 8px; font-size: 14px; line-height: 1.8;">
-                    Cargando configuración...
+                <h2>Información del Dispositivo</h2>
+                <div id="deviceInfo" style="padding: 15px; background: white; border-radius: 8px; font-size: 14px; line-height: 1.8;">
+                    Cargando información...
                 </div>
                 <button id="connectBtn" class="btn-primary" style="margin-top: 15px;">Conectar</button>
             </div>
 
             <div class="data-section">
-                <h2>Último Valor Recibido</h2>
+                <h2>Fuente Eléctrica Actual</h2>
                 <div class="value-display" id="valueDisplay">
                     <div class="no-data">Esperando datos...</div>
                 </div>
                 <div class="timestamp" id="timestamp"></div>
-            </div>
-
-            <div class="publish-section">
-                <h2>Publicar Mensaje</h2>
-                <div class="input-group">
-                    <label for="message">Mensaje:</label>
-                    <input type="text" id="message" placeholder="Escribe un mensaje">
-                </div>
-                <button id="publishBtn" class="btn-secondary" disabled>Publicar</button>
             </div>
         </main>
 
