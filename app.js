@@ -88,7 +88,9 @@ function connectMQTT() {
     saveConfig();
     updateStatus(false, 'Conectando...');
 
-    const url = `ws://${broker}:${port}/mqtt`;
+    // Detectar si estamos en HTTPS y usar wss:// en lugar de ws://
+    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const url = `${protocol}${broker}:${port}/mqtt`;
 
     try {
         client = mqtt.connect(url, {
