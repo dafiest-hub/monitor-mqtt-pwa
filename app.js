@@ -1,8 +1,8 @@
 // ===== CONFIGURACIÓN - EDITA AQUÍ =====
 const MQTT_CONFIG = {
-    broker: 'broker.hivemq.com',      // Cambia aquí el broker
-    port: 8084,                     // Puerto WSS (8084 para EMQX, 8883/8884 para HiveMQ)
-    topic: 'mi/topico/unico'        // Cambia aquí tu tópico único
+    broker: 'test.mosquitto.org',   // Cambia aquí el broker
+    port: 8081,                      // Puerto WSS (8081 para Mosquitto, 8084 para EMQX, 8884 para HiveMQ)
+    topic: 'felipe/voltaje/sensor'   // Cambia aquí tu tópico único
 };
 // ======================================
 
