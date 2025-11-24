@@ -231,6 +231,10 @@ footer {
     background: #f5f5f5;
 }
 
+.install-section {
+    display: block;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
     .container {

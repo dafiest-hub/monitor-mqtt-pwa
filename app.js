@@ -170,11 +170,14 @@ connectBtn.addEventListener('click', () => {
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    installPrompt.style.display = 'block';
+    // El botón ya es visible, solo habilitamos la funcionalidad
+    installBtn.disabled = false;
+    installBtn.style.opacity = '1';
 });
 
 installBtn.addEventListener('click', async () => {
     if (!deferredPrompt) {
+        alert('Para instalar esta app:\n\n📱 Android: Usa el menú del navegador > "Agregar a pantalla de inicio"\n🍎 iOS: Usa el botón compartir > "Agregar a pantalla de inicio"');
         return;
     }
 
@@ -182,13 +185,14 @@ installBtn.addEventListener('click', async () => {
     const { outcome } = await deferredPrompt.userChoice;
 
     console.log(`User response: ${outcome}`);
+    if (outcome === 'accepted') {
+        installPrompt.style.display = 'none';
+    }
     deferredPrompt = null;
-    installPrompt.style.display = 'none';
 });
 
 window.addEventListener('appinstalled', () => {
-    console.log('PWA instalada');
-    deferredPrompt = null;
+    console.log('PWA instalada exitosamente');
     installPrompt.style.display = 'none';
 });
 
