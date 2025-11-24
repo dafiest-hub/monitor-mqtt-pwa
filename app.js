@@ -1,12 +1,17 @@
+// ===== CONFIGURACIÓN - EDITA AQUÍ =====
+const MQTT_CONFIG = {
+    broker: 'broker.hivemq.com',      // Cambia aquí el broker
+    port: 8084,                     // Puerto WSS (8084 para EMQX, 8883/8884 para HiveMQ)
+    topic: 'mi/topico/unico'        // Cambia aquí tu tópico único
+};
+// ======================================
+
 // Variables globales
 let client = null;
 let isConnected = false;
 let deferredPrompt;
 
 // Elementos del DOM
-const brokerInput = document.getElementById('broker');
-const portInput = document.getElementById('port');
-const topicInput = document.getElementById('topic');
 const connectBtn = document.getElementById('connectBtn');
 const statusDot = document.querySelector('.status-dot');
 const statusText = document.getElementById('statusText');
@@ -16,23 +21,15 @@ const messageInput = document.getElementById('message');
 const publishBtn = document.getElementById('publishBtn');
 const installPrompt = document.getElementById('installPrompt');
 const installBtn = document.getElementById('installBtn');
+const configInfo = document.getElementById('configInfo');
 
-// Cargar configuración guardada
-function loadConfig() {
-    const savedBroker = localStorage.getItem('mqttBroker');
-    const savedPort = localStorage.getItem('mqttPort');
-    const savedTopic = localStorage.getItem('mqttTopic');
-
-    if (savedBroker) brokerInput.value = savedBroker;
-    if (savedPort) portInput.value = savedPort;
-    if (savedTopic) topicInput.value = savedTopic;
-}
-
-// Guardar configuración
-function saveConfig() {
-    localStorage.setItem('mqttBroker', brokerInput.value);
-    localStorage.setItem('mqttPort', portInput.value);
-    localStorage.setItem('mqttTopic', topicInput.value);
+// Mostrar configuración en la interfaz
+if (configInfo) {
+    configInfo.innerHTML = `
+        <strong>Broker:</strong> ${MQTT_CONFIG.broker}<br>
+        <strong>Puerto:</strong> ${MQTT_CONFIG.port}<br>
+        <strong>Tópico:</strong> ${MQTT_CONFIG.topic}
+    `;
 }
 
 // Actualizar estado de conexión
@@ -45,21 +42,12 @@ function updateStatus(connected, message) {
         connectBtn.textContent = 'Desconectar';
         connectBtn.classList.add('connected');
         publishBtn.disabled = false;
-        disableInputs(true);
     } else {
         statusDot.className = 'status-dot disconnected';
         connectBtn.textContent = 'Conectar';
         connectBtn.classList.remove('connected');
         publishBtn.disabled = true;
-        disableInputs(false);
     }
-}
-
-// Deshabilitar/habilitar inputs
-function disableInputs(disable) {
-    brokerInput.disabled = disable;
-    portInput.disabled = disable;
-    topicInput.disabled = disable;
 }
 
 // Mostrar valor recibido
@@ -76,21 +64,13 @@ function displayValue(value) {
 
 // Conectar a MQTT
 function connectMQTT() {
-    const broker = brokerInput.value.trim();
-    const port = parseInt(portInput.value);
-    const topic = topicInput.value.trim();
-
-    if (!broker || !port || !topic) {
-        alert('Por favor completa todos los campos');
-        return;
-    }
-
-    saveConfig();
     updateStatus(false, 'Conectando...');
 
     // Detectar si estamos en HTTPS y usar wss:// en lugar de ws://
     const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    const url = `${protocol}${broker}:${port}/mqtt`;
+    const url = `${protocol}${MQTT_CONFIG.broker}:${MQTT_CONFIG.port}/mqtt`;
+
+    console.log('Conectando a:', url);
 
     try {
         client = mqtt.connect(url, {
@@ -104,18 +84,18 @@ function connectMQTT() {
             console.log('Conectado a MQTT');
             updateStatus(true, 'Conectado');
 
-            client.subscribe(topic, (err) => {
+            client.subscribe(MQTT_CONFIG.topic, (err) => {
                 if (err) {
                     console.error('Error al suscribirse:', err);
                     updateStatus(true, 'Conectado (error suscripción)');
                 } else {
-                    console.log('Suscrito a:', topic);
-                    updateStatus(true, `Conectado - Escuchando: ${topic}`);
+                    console.log('Suscrito a:', MQTT_CONFIG.topic);
+                    updateStatus(true, `Conectado - Escuchando`);
                 }
             });
         });
 
-        client.on('message', (receivedTopic, message) => {
+        client.on('message', (topic, message) => {
             console.log('Mensaje recibido:', message.toString());
             displayValue(message.toString());
         });
@@ -163,14 +143,13 @@ function publishMessage() {
     }
 
     const message = messageInput.value.trim();
-    const topic = topicInput.value.trim();
 
     if (!message) {
         alert('Escribe un mensaje para publicar');
         return;
     }
 
-    client.publish(topic, message, (err) => {
+    client.publish(MQTT_CONFIG.topic, message, (err) => {
         if (err) {
             console.error('Error al publicar:', err);
             alert('Error al publicar mensaje');
@@ -229,9 +208,6 @@ window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
     installPrompt.style.display = 'none';
 });
-
-// Cargar configuración al iniciar
-loadConfig();
 
 // Detectar cuando la app se vuelve visible
 document.addEventListener('visibilitychange', () => {

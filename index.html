@@ -27,20 +27,10 @@
         <main>
             <div class="config-section">
                 <h2>Configuración</h2>
-                <div class="input-group">
-                    <label for="broker">Broker MQTT:</label>
-                    <input type="text" id="broker" value="broker.hivemq.com" placeholder="broker.hivemq.com">
+                <div id="configInfo" style="padding: 15px; background: white; border-radius: 8px; font-size: 14px; line-height: 1.8;">
+                    Cargando configuración...
                 </div>
-                <div class="input-group">
-                    <label for="port">Puerto WebSocket:</label>
-                    <input type="number" id="port" value="8884" placeholder="8884">
-                    <small style="color: #666; font-size: 12px;">WSS: 8884 | WS: 8000</small>
-                </div>
-                <div class="input-group">
-                    <label for="topic">Tópico:</label>
-                    <input type="text" id="topic" value="mi/topico/unico" placeholder="mi/topico/unico">
-                </div>
-                <button id="connectBtn" class="btn-primary">Conectar</button>
+                <button id="connectBtn" class="btn-primary" style="margin-top: 15px;">Conectar</button>
             </div>
 
             <div class="data-section">
