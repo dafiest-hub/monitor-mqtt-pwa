@@ -113,6 +113,16 @@ function connectMQTT() {
                 } else {
                     console.log('Suscrito a:', MQTT_CONFIG.topic);
                     updateStatus(true, `Conectado - Escuchando`);
+
+                    // Enviar mensaje STATUS al conectarse
+                    const statusTopic = `${MQTT_CONFIG.topic}/${DISPOSITIVO.id}`;
+                    client.publish(statusTopic, 'STATUS', { qos: 0, retain: false }, (err) => {
+                        if (err) {
+                            console.error('Error al enviar STATUS:', err);
+                        } else {
+                            console.log('Mensaje STATUS enviado a:', statusTopic);
+                        }
+                    });
                 }
             });
         });
