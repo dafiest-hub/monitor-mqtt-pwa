@@ -10,12 +10,18 @@ const DISPOSITIVO = {
     id: 'DIS-2024-001',              // ID del dispositivo
     ubicacion: 'Edificio Principal'  // Ubicación del dispositivo
 };
+
+const AUTH_CREDENTIALS = {
+    username: 'generac',
+    password: 'tymse-generac2025'
+};
 // ======================================
 
 // Variables globales
 let client = null;
 let isConnected = false;
 let deferredPrompt;
+let isAuthenticated = false;
 
 // Elementos del DOM
 const connectBtn = document.getElementById('connectBtn');
@@ -26,6 +32,9 @@ const timestamp = document.getElementById('timestamp');
 const installPrompt = document.getElementById('installPrompt');
 const installBtn = document.getElementById('installBtn');
 const deviceInfo = document.getElementById('deviceInfo');
+const authModal = document.getElementById('authModal');
+const authForm = document.getElementById('authForm');
+const authError = document.getElementById('authError');
 
 // Mostrar información del dispositivo
 if (deviceInfo) {
@@ -81,6 +90,44 @@ function displayValue(value) {
     // Animación
     valueDisplay.classList.add('pulse');
     setTimeout(() => valueDisplay.classList.remove('pulse'), 500);
+}
+
+// Funciones de Autenticación
+function checkAuthentication() {
+    const authStatus = localStorage.getItem('mqttMonitorAuth');
+    if (authStatus === 'authorized') {
+        isAuthenticated = true;
+        authModal.classList.remove('active');
+    } else {
+        isAuthenticated = false;
+        authModal.classList.add('active');
+    }
+    return isAuthenticated;
+}
+
+function handleLogin(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (username === AUTH_CREDENTIALS.username && password === AUTH_CREDENTIALS.password) {
+        // Autenticación exitosa
+        localStorage.setItem('mqttMonitorAuth', 'authorized');
+        isAuthenticated = true;
+        authModal.classList.remove('active');
+        authError.textContent = '';
+
+        // Limpiar formulario
+        authForm.reset();
+
+        console.log('Autenticación exitosa');
+    } else {
+        // Credenciales incorrectas
+        authError.textContent = 'Usuario o contraseña incorrectos';
+        document.getElementById('password').value = '';
+        document.getElementById('password').focus();
+    }
 }
 
 // Conectar a MQTT
@@ -168,7 +215,14 @@ function disconnectMQTT() {
 }
 
 // Event Listeners
+authForm.addEventListener('submit', handleLogin);
+
 connectBtn.addEventListener('click', () => {
+    if (!isAuthenticated) {
+        authModal.classList.add('active');
+        return;
+    }
+
     if (isConnected) {
         disconnectMQTT();
     } else {
@@ -212,3 +266,6 @@ document.addEventListener('visibilitychange', () => {
         console.log('App visible');
     }
 });
+
+// Verificar autenticación al cargar la página
+checkAuthentication();
