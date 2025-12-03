@@ -22,6 +22,8 @@ let client = null;
 let isConnected = false;
 let deferredPrompt;
 let isAuthenticated = false;
+let messageReceivedTimeout = null;
+let hasReceivedMessage = false;
 
 // Elementos del DOM
 const connectBtn = document.getElementById('connectBtn');
@@ -68,12 +70,23 @@ function updateStatus(connected, message) {
 function displayValue(value) {
     const valorLimpio = value.trim().toUpperCase();
 
+    // Marcar que se ha recibido un mensaje
+    hasReceivedMessage = true;
+
+    // Limpiar el timeout si existe
+    if (messageReceivedTimeout) {
+        clearTimeout(messageReceivedTimeout);
+        messageReceivedTimeout = null;
+    }
+
     // Determinar el color de fondo según la fuente
     let backgroundColor;
     if (valorLimpio === 'CFE') {
         backgroundColor = 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)'; // Azul
     } else if (valorLimpio === 'GENERADOR') {
         backgroundColor = 'linear-gradient(135deg, #c31432 0%, #e85d75 100%)'; // Rojo
+    } else if (valorLimpio === 'SIN INTERNET') {
+        backgroundColor = 'linear-gradient(135deg, #434343 0%, #000000 100%)'; // Negro/Gris
     } else {
         backgroundColor = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; // Morado (default)
     }
@@ -90,6 +103,12 @@ function displayValue(value) {
     // Animación
     valueDisplay.classList.add('pulse');
     setTimeout(() => valueDisplay.classList.remove('pulse'), 500);
+}
+
+// Mostrar mensaje de sin internet
+function showNoInternet() {
+    displayValue('SIN INTERNET');
+    console.log('No se recibieron mensajes en 30 segundos - Mostrando SIN INTERNET');
 }
 
 // Funciones de Autenticación
@@ -153,6 +172,9 @@ function connectMQTT() {
             console.log('Conectado a MQTT');
             updateStatus(true, 'Conectado');
 
+            // Reiniciar flag de mensaje recibido
+            hasReceivedMessage = false;
+
             client.subscribe(MQTT_CONFIG.topic, (err) => {
                 if (err) {
                     console.error('Error al suscribirse:', err);
@@ -170,6 +192,13 @@ function connectMQTT() {
                             console.log('Mensaje STATUS enviado a:', statusTopic);
                         }
                     });
+
+                    // Iniciar timeout de 30 segundos para verificar si se reciben mensajes
+                    messageReceivedTimeout = setTimeout(() => {
+                        if (!hasReceivedMessage) {
+                            showNoInternet();
+                        }
+                    }, 30000); // 30 segundos
                 }
             });
         });
@@ -207,10 +236,18 @@ function connectMQTT() {
 
 // Desconectar de MQTT
 function disconnectMQTT() {
+    // Limpiar timeout si existe
+    if (messageReceivedTimeout) {
+        clearTimeout(messageReceivedTimeout);
+        messageReceivedTimeout = null;
+    }
+
     if (client) {
         client.end();
         client = null;
     }
+
+    hasReceivedMessage = false;
     updateStatus(false, 'Desconectado');
 }
 
