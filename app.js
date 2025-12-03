@@ -79,6 +79,14 @@ function displayValue(value) {
         messageReceivedTimeout = null;
     }
 
+    // Si estamos conectados y no es el mensaje de "SIN INTERNET",
+    // reiniciar el timer de 3 minutos para el monitoreo continuo
+    if (isConnected && valorLimpio !== 'SIN INTERNET') {
+        messageReceivedTimeout = setTimeout(() => {
+            showNoInternet();
+        }, 180000); // 3 minutos (180,000 ms)
+    }
+
     // Determinar el color de fondo según la fuente
     let backgroundColor;
     if (valorLimpio === 'CFE') {
@@ -108,7 +116,7 @@ function displayValue(value) {
 // Mostrar mensaje de sin internet
 function showNoInternet() {
     displayValue('SIN INTERNET');
-    console.log('No se recibieron mensajes en 30 segundos - Mostrando SIN INTERNET');
+    console.log('Timeout: No se recibieron mensajes - Mostrando SIN INTERNET');
 }
 
 // Funciones de Autenticación
