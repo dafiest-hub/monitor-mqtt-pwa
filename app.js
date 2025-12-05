@@ -60,7 +60,7 @@ function updateStatus(connected, message) {
         statusDot.className = 'status-dot connected';
         connectBtn.textContent = 'Desconectar';
         connectBtn.classList.add('connected');
-        switchBtn.disabled = false; // Habilitar botón SWITCH cuando está conectado
+        // No habilitar automáticamente el botón SWITCH, esperar a recibir un valor válido
     } else {
         statusDot.className = 'status-dot disconnected';
         connectBtn.textContent = 'Conectar';
@@ -88,6 +88,14 @@ function displayValue(value) {
         messageReceivedTimeout = setTimeout(() => {
             showNoInternet();
         }, 180000); // 3 minutos (180,000 ms)
+    }
+
+    // Habilitar o deshabilitar botón SWITCH según el valor recibido
+    // Solo habilitar si es CFE o GENERADOR y estamos conectados
+    if (isConnected && (valorLimpio === 'CFE' || valorLimpio === 'GENERADOR')) {
+        switchBtn.disabled = false;
+    } else {
+        switchBtn.disabled = true;
     }
 
     // Determinar el color de fondo según la fuente
