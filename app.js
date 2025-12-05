@@ -66,6 +66,10 @@ function updateStatus(connected, message) {
         connectBtn.textContent = 'Conectar';
         connectBtn.classList.remove('connected');
         switchBtn.disabled = true; // Deshabilitar botón SWITCH cuando está desconectado
+
+        // Limpiar valor mostrado cuando no está conectado
+        valueDisplay.innerHTML = '<div class="no-data">Esperando datos...</div>';
+        timestamp.textContent = '';
     }
 }
 
@@ -168,6 +172,20 @@ function handleLogin(e) {
     }
 }
 
+// Función para enviar mensaje STATUS
+function sendStatus() {
+    if (!client) return;
+
+    const statusTopic = `${MQTT_CONFIG.topic}/${DISPOSITIVO.id}`;
+    client.publish(statusTopic, 'STATUS', { qos: 0, retain: false }, (err) => {
+        if (err) {
+            console.error('Error al enviar STATUS:', err);
+        } else {
+            console.log('Mensaje STATUS enviado a:', statusTopic);
+        }
+    });
+}
+
 // Conectar a MQTT
 function connectMQTT() {
     updateStatus(false, 'Conectando...');
@@ -194,6 +212,10 @@ function connectMQTT() {
             // Reiniciar flag de mensaje recibido
             hasReceivedMessage = false;
 
+            // Limpiar el valor mostrado al reconectar
+            valueDisplay.innerHTML = '<div class="no-data">Esperando datos...</div>';
+            timestamp.textContent = '';
+
             client.subscribe(MQTT_CONFIG.topic, (err) => {
                 if (err) {
                     console.error('Error al suscribirse:', err);
@@ -202,15 +224,8 @@ function connectMQTT() {
                     console.log('Suscrito a:', MQTT_CONFIG.topic);
                     updateStatus(true, `Conectado - Escuchando`);
 
-                    // Enviar mensaje STATUS al conectarse
-                    const statusTopic = `${MQTT_CONFIG.topic}/${DISPOSITIVO.id}`;
-                    client.publish(statusTopic, 'STATUS', { qos: 0, retain: false }, (err) => {
-                        if (err) {
-                            console.error('Error al enviar STATUS:', err);
-                        } else {
-                            console.log('Mensaje STATUS enviado a:', statusTopic);
-                        }
-                    });
+                    // Enviar mensaje STATUS al conectarse o reconectarse
+                    sendStatus();
 
                     // Iniciar timeout de 30 segundos para verificar si se reciben mensajes
                     messageReceivedTimeout = setTimeout(() => {
