@@ -91,8 +91,8 @@ function displayValue(value) {
     }
 
     // Habilitar o deshabilitar botón SWITCH según el valor recibido
-    // Solo habilitar si es CFE o GENERADOR y estamos conectados
-    if (isConnected && (valorLimpio === 'CFE' || valorLimpio === 'GENERADOR')) {
+    // Habilitar si hay cualquier valor válido excepto "SIN INTERNET"
+    if (isConnected && valorLimpio !== 'SIN INTERNET') {
         switchBtn.disabled = false;
     } else {
         switchBtn.disabled = true;
