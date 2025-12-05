@@ -269,11 +269,20 @@ function sendSwitch() {
         return;
     }
 
+    // Mostrar confirmación antes de enviar el comando
+    const confirmar = confirm('¿Está seguro que desea cambiar la fuente eléctrica?\n\nEsto ejecutará el comando SWITCH en el dispositivo.');
+
+    if (!confirmar) {
+        console.log('Cambio de fuente cancelado por el usuario');
+        return;
+    }
+
     const switchTopic = `${MQTT_CONFIG.topic}/${DISPOSITIVO.id}`;
 
     client.publish(switchTopic, 'SWITCH', { qos: 0, retain: false }, (err) => {
         if (err) {
             console.error('Error al enviar SWITCH:', err);
+            alert('Error al enviar el comando SWITCH. Por favor intente nuevamente.');
         } else {
             console.log('Comando SWITCH enviado a:', switchTopic);
         }
