@@ -37,6 +37,7 @@ const deviceInfo = document.getElementById('deviceInfo');
 const authModal = document.getElementById('authModal');
 const authForm = document.getElementById('authForm');
 const authError = document.getElementById('authError');
+const switchBtn = document.getElementById('switchBtn');
 
 // Mostrar información del dispositivo
 if (deviceInfo) {
@@ -59,10 +60,12 @@ function updateStatus(connected, message) {
         statusDot.className = 'status-dot connected';
         connectBtn.textContent = 'Desconectar';
         connectBtn.classList.add('connected');
+        switchBtn.disabled = false; // Habilitar botón SWITCH cuando está conectado
     } else {
         statusDot.className = 'status-dot disconnected';
         connectBtn.textContent = 'Conectar';
         connectBtn.classList.remove('connected');
+        switchBtn.disabled = true; // Deshabilitar botón SWITCH cuando está desconectado
     }
 }
 
@@ -259,6 +262,24 @@ function disconnectMQTT() {
     updateStatus(false, 'Desconectado');
 }
 
+// Enviar comando SWITCH
+function sendSwitch() {
+    if (!isConnected || !client) {
+        console.error('No hay conexión MQTT activa');
+        return;
+    }
+
+    const switchTopic = `${MQTT_CONFIG.topic}/${DISPOSITIVO.id}`;
+
+    client.publish(switchTopic, 'SWITCH', { qos: 0, retain: false }, (err) => {
+        if (err) {
+            console.error('Error al enviar SWITCH:', err);
+        } else {
+            console.log('Comando SWITCH enviado a:', switchTopic);
+        }
+    });
+}
+
 // Event Listeners
 authForm.addEventListener('submit', handleLogin);
 
@@ -273,6 +294,10 @@ connectBtn.addEventListener('click', () => {
     } else {
         connectMQTT();
     }
+});
+
+switchBtn.addEventListener('click', () => {
+    sendSwitch();
 });
 
 // PWA Installation

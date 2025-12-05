@@ -178,6 +178,24 @@ button {
     background: #F57C00;
 }
 
+.btn-switch {
+    background: #9C27B0;
+    color: white;
+    margin-top: 15px;
+}
+
+.btn-switch:hover:not(:disabled) {
+    background: #7B1FA2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.4);
+}
+
+.btn-switch:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .value-display {
     background: white;
     padding: 30px;
