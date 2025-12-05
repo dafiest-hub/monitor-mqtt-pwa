@@ -270,7 +270,7 @@ function sendSwitch() {
     }
 
     // Mostrar confirmación antes de enviar el comando
-    const confirmar = confirm('¿Está seguro que desea cambiar la fuente eléctrica?\n\nEsto ejecutará el comando SWITCH en el dispositivo.');
+    const confirmar = confirm('¿Está seguro que desea cambiar la fuente eléctrica?\n\nSe realizará el cambio de la fuente eléctrica.');
 
     if (!confirmar) {
         console.log('Cambio de fuente cancelado por el usuario');
